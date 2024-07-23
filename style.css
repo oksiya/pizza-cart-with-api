@@ -1,0 +1,17 @@
+[x-cloak] {
+    display: none;
+}
+
+/* Responsive layout for small screens */
+@media (max-width: 640px) {
+    .pizza-items {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.pizza {
+    border: 1px solid;
+    margin-bottom: 1em;
+    padding: 1em;
+}
