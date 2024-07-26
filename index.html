@@ -14,7 +14,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-400 p-4">
+<body class="bg-gray-400 p-8">
     <div x-data="pizzaCartWithAPIWidget">
         <h1 class="text-3xl font-bold mb-4 text-center" x-text="title"></h1>
 
@@ -70,7 +70,7 @@
                 <h2 class="text-xl font-bold mb-4">Shopping Cart [ <span x-text="username" class="font-italic text-green-500"></span> ]</h2>
                 <div x-show="cart.length > 0">
                     <div>
-                        <table class=" bg-gray-200 w-full shadow rounded table-auto border-separate border-spacing-2 border border-slate-500">
+                        <table class=" bg-gray-200 w-full shadow rounded table-auto border border-slate-500">
                             <thead>
                                 <tr>
                                     <th class="border border-slate-600">Flavour</th>
@@ -81,24 +81,28 @@
                             </thead>
                             <tbody>
                                 <template x-for="(item, index) in cart" :key="index">
-                                    <tr class="text-center">
-                                        <td class="border border-slate-600 p-4 text-start"><span x-text="item.flavour"></span></td>
-                                        <td><span class="border border-slate-600 p-4">x <span x-text="item.qty"></span></span></td>
-                                        <td class="border border-slate-600">
+                                    <tr class="text-center mb-4">
+                                        <td class="p-2 text-start">
+                                            <p x-text="item.flavour"></p>
+                                            <span x-text="item.type" class="font-bold"></span>,
+                                            <span x-text="item.size"></span>
+                                        </td>
+                                        <td><span class="p-4">x <span x-text="item.qty"></span></span></td>
+                                        <td>
                                             <button @click="removeFromCart(item.id)" class="bg-red-500 text-white px-2 py-1 rounded">-</button>
                                             <button @click="addToCart(item.id)" class="bg-green-500 text-white px-2 py-1 rounded">+</button>
                                         </td> 
-                                        <td class="border border-slate-600 font-bold text-start px-2"><span>R<span x-text="item.total.toFixed(2)"></span></span></td>                           
+                                        <td class="font-bold text-start px-2"><span>R<span x-text="item.total.toFixed(2)"></span></span></td>                           
                                     </tr>
                             
                                 </template>
                             </tbody>
                         </table>
                     </div>
-                    <div class="border-t pt-2 mt-2 font-bold text-xl">
+                    <div class="border-t pt-2 mt-2 font-bold text-xl text-end">
                         <p>Total Cost: R<span x-text="cartTotal"></span></p>
                     </div>
-                    <button @click="checkout()" class="bg-blue-500 text-white px-4 py-2 mt-4 rounded" x-show="cart.length > 0">Check Out</button>
+                    <button @click="checkout()" class="bg-blue-500 text-white px-4 py-2 mt-4 rounded text-end" x-show="cart.length > 0">Check Out</button>
                 </div>
                 <div x-show="cart.length === 0" x-cloak>
                     <p>Your cart is empty!</p>
@@ -122,6 +126,63 @@
                     </div>
                 </div>
             </div>
+
+                        <!-- Cart History Button -->
+            <div class="text-center mt-4">
+                <button @click="showCartHistory" class="bg-purple-500 text-white px-4 py-2 rounded">View Cart History</button>
+            </div>
+
+
+            <!-- Cart History Modal -->
+            <div x-show="showCartHistoryModal" x-cloak>
+                <div class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+                    <div class="bg-white p-6 rounded shadow-lg w-1/2 max-h-screen">
+                        <h2 class="text-xl font-bold mb-4">Cart History</h2>
+                        <div class="max-h-96 overflow-y-auto">
+                            <div x-show="cartHistory.length > 0">
+                                <ul x-show="cartHistory.length > 0" x-cloak>
+                                    <template x-for="cart in cartHistory" :key="cart.cart_code">
+                                        <li class="mb-4 bg-gray-200 p-8">
+                                            <div>
+                                                <strong>Cart Code:</strong> <span x-text="cart.cart_code"></span>
+                                            </div>
+                                            <div>
+                                                <button @click="fetchCartDetails(cart.cart_code)" class="bg-blue-500 text-white px-4 py-2 mt-2 rounded">View Details</button>
+                                            </div>
+                                            <div x-show="selectedCartCode === cart.cart_code" x-cloak>
+                                                <div class="mt-4">
+                                                    <h3 class="text-lg font-bold">Cart Details</h3>
+                                                    <template x-if="cartDetails.length > 0">
+                                                        <ul class="border-b p-4 border-white">
+                                                            <template x-for="item in cartDetails" :key="item.id">
+                                                                <li>
+                                                                    <strong>Pizza:</strong> <span x-text="item.flavour"></span>,
+                                                                    <strong>Quantity:</strong> <span x-text="item.qty"></span>,
+                                                                    <strong>Type:</strong> <span x-text="item.type"></span>,
+                                                                    <strong>Size:</strong> <span x-text="item.size"></span>,
+                                                                    <strong>Price:</strong> R<span x-text="item.total"></span>
+                                                                </li>
+                                                            </template>
+                                                        </ul>
+                                                    </template>
+                                                    <template x-if="cartDetails.length === 0">
+                                                        <p>No details available for this cart.</p>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                            <div x-show="cartHistory.length === 0">
+                                <p>No cart history available.</p>
+                            </div>
+                        </div>
+                        <button @click="closeCartHistory" class="bg-red-500 text-white px-4 py-2 mt-4 rounded">Close</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Pizza List -->
             <div class="bg-white p-4 shadow rounded mb-4 mt-4 grid grid-cols-3 gap-4">
                 <template x-for="pizza in pizzas" :key="pizza.id">
@@ -133,15 +194,20 @@
                     </div>
                 </template>
             </div>
+
+            <!-- Logout Button -->
+            <div class="flex justify-center">
+                <button @click="logout" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+            </div>
         </div>
 
 
-    <!-- Contact Details -->
-    <div class="mt-8 flex flex-col items-center text-white">
-        <h2 class="text-xl font-bold">Contact Details</h2>
-        <p>siya.coma@gmail.com | (+27) 78 299 1217</p>
-    </div>
-    <script src="pizzaCart.js"></script>
+        <!-- Contact Details -->
+        <div class="mt-4 flex flex-col items-center text-white">
+            <h2 class="text-xl font-bold">Contact Details</h2>
+            <p>siya.coma@gmail.com | (+27) 78 299 1217</p>
+        </div>
+        <script src="pizzaCart.js"></script>
     </div>
 </body>
 </html>

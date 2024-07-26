@@ -5,13 +5,17 @@ document.addEventListener('alpine:init', () => {
         cart: [],
         cartTotal: 0.00,
         showCheckout: false,
-        showLogin: true, // Show the login modal initially
+        showLogin: true, 
         cartId: '',
         username: '',
         paymentAmount: 0.00,
         checkoutMessage: '',
         isLoggedIn: false,
         loginMessage: '',
+        showCartHistoryModal: false,
+        cartHistory: [],
+        cartDetails: [],
+        selectedCartCode: '',
         
         createCart() {
             const createCartURL = `https://pizza-api.projectcodex.net/api/pizza-cart/create?username=${this.username}`;
@@ -34,6 +38,7 @@ document.addEventListener('alpine:init', () => {
                     this.showCartData();
                 });
             }
+           
         },
         showCartData() {
             this.getCart().then(result => {
@@ -64,11 +69,44 @@ document.addEventListener('alpine:init', () => {
                 this.showCartData();
             });
         },
+        getCartHistory() {
+            const cartHistoryURL = `https://pizza-api.projectcodex.net/api/pizza-cart/username/${this.username}`;
+            return axios.get(cartHistoryURL).then(result => {
+               
+                this.cartHistory = result.data.map(cart => ({
+                    id: cart.id,
+                    cart_code: cart.cart_code,
+                    status: cart.status,
+                    username: cart.username
+                }));
+                this.showCartHistoryModal = true;
+            }).catch(error => {
+                console.error('Error fetching cart history:', error);
+                this.cartHistory = [];
+                this.showCartHistoryModal = true;
+            });
+        },
+        fetchCartDetails(cartCode) {
+            this.selectedCartCode = cartCode;
+            const url = `https://pizza-api.projectcodex.net/api/pizza-cart/${this.selectedCartCode}/get`;
+            return axios.get(url).then(result => {
+                this.cartDetails = result.data.pizzas;
+            });
+        },
         pay(amount) {
             return axios.post(`https://pizza-api.projectcodex.net/api/pizza-cart/pay`, {
                 "cart_code": this.cartId,
                 "amount": amount
             });
+        },
+        openCheckout() {
+            this.showCheckout = true;
+        },
+        closeCartHistory() {
+            this.showCartHistoryModal = false;
+        },
+        showCartHistory() {
+            this.getCartHistory();
         },
         checkout() {
             this.showCheckout = true;
@@ -105,6 +143,14 @@ document.addEventListener('alpine:init', () => {
             this.createCart().then(() => {
                 this.showCartData();
             });
+        },
+        logout() {
+            this.username = '';
+            this.cartHistory = [];
+            this.cartDetails = [];
+            this.selectedCartCode = '';
+
+            this.isLoggedIn = false;
         },
         openLoginModal() {
             this.showLogin = true;

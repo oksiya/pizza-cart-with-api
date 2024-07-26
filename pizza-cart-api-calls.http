@@ -13,7 +13,7 @@ GET https://pizza-api.projectcodex.net/api/pizza-cart/create?username=oksiya
 
 ### Get a cart
 
-GET https://pizza-api.projectcodex.net/api/pizza-cart/Q85vQwtboE/get
+GET https://pizza-api.projectcodex.net/api/pizza-cart/PuzdsXJocM/get
 
 ### Add a pizza to the cart
 
@@ -47,11 +47,11 @@ content-type: application/json
 
 ### GET all the carts for a given user
 
-GET https://pizza-api.projectcodex.net/api/pizza-cart/username/Andrew
+GET https://pizza-api.projectcodex.net/api/pizza-cart/username/oksiya
 
 ### GET all the active carts for a user
 
-GET https://pizza-api.projectcodex.net/api/pizza-cart/username/Lindani/active
+GET https://pizza-api.projectcodex.net/api/pizza-cart/username/oksiya/active
 
 
 ### Pay for a pizza from the cart
